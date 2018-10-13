@@ -35,19 +35,19 @@ function setup() {
   //noLoop();
 }
 
-function createCity(name) {
-  this.x = random(width - 20);
-  this.y = random(height - 20);
+function createCity(name, latLng) {
+  this.x = 25*latLng[0]
+  this.y = -latLng[1]
   this.diameter = 20;
   return [x, y];
 }
 
 function renderCities(data) {
-  count = data.length;
+  count = Object.keys(data).length;
 
   while (count) {
-    var text = data[count - 1];
-    cities[text] = createCity(text);
+    var text = Object.keys(data)[count - 1];
+    cities[text] = createCity(text, data[text]);
     count--;
   }
 }
