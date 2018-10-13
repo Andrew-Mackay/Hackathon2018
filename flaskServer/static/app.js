@@ -69,10 +69,6 @@ function renderPostcodes(data) {
   }
 }
 
-function renderPeople() {
-  renderingPeople = true;
-}
-
 var num = 2;
 var range = 4;
 
@@ -163,7 +159,8 @@ function mousePressed() {
               console.log(error);
             });
         } else {
-          renderPeople();
+          renderingPostcodes = false;
+          renderingPeople = true;
         }
       }
     }
