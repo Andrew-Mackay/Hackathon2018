@@ -28,16 +28,16 @@ def getPeople():
   people = ['person1', 'person2', 'person3']
   return jsonify(people)
 
-@app.route('/getIllness', methods=['POST'])
-def getIllness():
-  illnessCode = request.form['illnessCode']
-  illnessDescription = translateIllnessCode(illnessCode)
-  return jsonify(illnessDescription)
+@app.route('/getDrg', methods=['POST'])
+def getDrg():
+  drgCode = request.form['drgCode']
+  drgDescription = translateDrgCode(drgCode)
+  return jsonify(drgDescription)
 
 
-def translateIllnessCode(illnessCode):
+def translateDrgCode(drgCode):
   baseURL = "http://www.icd10api.com/?code="
-  getRequest = baseURL + illnessCode
+  getRequest = baseURL + drgCode
   response = urllib.request.urlopen(getRequest).read()
   return json.loads(response.decode())['Description']
 
