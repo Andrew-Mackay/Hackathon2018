@@ -1,3 +1,4 @@
+
 let renderingPeople = false;
 let renderingCities = true;
 let direction = -1;
