@@ -1,5 +1,3 @@
-import { getCities } from './api.js';
-
 let renderingPeople = false;
 let direction = -1;
 
@@ -11,13 +9,12 @@ function setup() {
     ay[i] = height / 2;
   }
 
-  getCities().then((data) => {
-    // let data = ["London", "Edinburgh", "Glasgow", "Aberdeen", "York"];
+  getCities().then(({data}) => {
     renderCities(data);
-    console.log(data)
   })
-
-
+  .catch(function (error) {
+    console.log(error);
+  });
 }
 
 function createCity(name) {
@@ -87,21 +84,10 @@ function mousePressed() {
         if (
           isNaN(Object.keys(points).find(key => points[key] === objectValue))
         ) {
-          data = [
-            "12345",
-            "28749",
-            "29573",
-            "20958",
-            "98738",
-            "46382",
-            "74847",
-            "13337",
-            "37489",
-            "57585",
-            "12095"
-          ];
-          background(150, 150, 150);
-          renderCities(data);
+          getPostcodes("CityName").then(({data}) => {
+            background(150, 150, 150);
+            renderCities(data);
+          })
         } else {
           renderPeople();
         }
@@ -111,3 +97,23 @@ function mousePressed() {
 
 
 }
+
+//----------------------------------------------
+
+BASE_URL = "http://127.0.0.1:5000/";
+
+function getCities() {
+  return axios.get(BASE_URL + 'getCities');
+};
+
+function getPostcodes(cityName) {
+  return axios.post(BASE_URL + 'getPostcodes', {cityName: cityName});
+};
+
+function getPeople(postCode) {
+  return axios.post(BASE_URL + 'getPeople', {postCode: postCode});
+};
+
+function getDrg(drgCode) {
+  return axios.post(BASE_URL + 'getDrg', {'drgCode': drgCode})
+};
