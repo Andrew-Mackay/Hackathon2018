@@ -25,26 +25,28 @@ def testAuto():
 
 @app.route('/getCityNames')
 def getCityNames():
-  names = cities_df['city'].tolist()
+  # names = cities_df['city'].tolist()
+  names = cities_coll.find().distinct("_id")
+
   return jsonify(names)
 
-@app.route('/getCities', methods=['GET'])
-def getCitites():
+# @app.route('/getCities', methods=['GET'])
+# def getCitites():
 
-  # takes about 0.03s
-  cities = cities_coll.find().distinct("_id")
+#   # takes about 0.03s
+#   cities = cities_coll.find().distinct("_id")
 
-  #cities = ['Huntsville', 'Elkmont', 'Maumelle']
-  citiesLatLng = {}
-  selectedForColumns = cities_df[['city', 'lat', 'lng']]
-  i = 0
-  for row in selectedForColumns.iterrows():
-    # print(row[0], row[1][['lat', 'lng']])
-    citiesLatLng[row[1]['city']] = row[1][['lat', 'lng']].tolist()
-    i+=1
-    if i > 8000:
-      break
-  return jsonify(citiesLatLng)
+#   #cities = ['Huntsville', 'Elkmont', 'Maumelle']
+#   citiesLatLng = {}
+#   selectedForColumns = cities_df[['city', 'lat', 'lng']]
+#   i = 0
+#   for row in selectedForColumns.iterrows():
+#     # print(row[0], row[1][['lat', 'lng']])
+#     citiesLatLng[row[1]['city']] = row[1][['lat', 'lng']].tolist()
+#     i+=1
+#     if i > 8000:
+#       break
+#   return jsonify(citiesLatLng)
 
 @app.route('/getPostcodes', methods=['POST'])
 def getPostcodes():
