@@ -11,40 +11,45 @@ let data = [];
 let cities = {};
 let postcodes = {};
 
+const MAP_WIDTH = 6816
+const MAP_HEIGHT = 5824
+
 function setup() {
   bg = loadImage("static/resources/map.jpg");
   back = bg;
   bg2 = loadImage("static/resources/road.jpg");
   cityImg = loadImage("static/resources/city.png");
   font = loadFont("static/resources/IndieFlower.ttf");
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(MAP_WIDTH, MAP_HEIGHT);
   //background(150, 150, 150);
   for (var i = 0; i < num; i++) {
     ax[i] = width / 2;
     ay[i] = height / 2;
   }
 
-  getCities()
-    .then(({ data }) => {
-      data = data;
-      renderCities(data);
-    })
-    .catch(function(error) {
-      console.log(error);
-    });
+  // getCities()
+  //   .then(({ data }) => {
+  //     data = data;
+  //     renderCities(data);
+  //   })
+  //   .catch(function(error) {
+  //     console.log(error);
+  //   });
   //noLoop();
 }
 
 function createCity(name, latLng) {
-  this.x = 25*latLng[0]
-  this.y = -latLng[1]
-  this.diameter = 20;
+  // this.x = ((MAP_WIDTH/360.0) * (180 + latLng[1]))
+  // this.y = ((MAP_HEIGHT/180.0) * (90 - latLng[0]))
+  this.x = latLng[0] * MAP_WIDTH
+  this.y = latLng[1] * MAP_HEIGHT
+  this.diameter = 10;
   return [x, y];
 }
 
 function renderCities(data) {
   count = Object.keys(data).length;
-
+  count = 0
   while (count) {
     var text = Object.keys(data)[count - 1];
     cities[text] = createCity(text, data[text]);
@@ -76,6 +81,7 @@ var ax = [];
 var ay = [];
 
 function draw() {
+  console.log(mouseX, mouseY)
   background(back);
 
   if (renderingCities) {
