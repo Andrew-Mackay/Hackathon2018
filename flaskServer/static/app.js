@@ -1,3 +1,4 @@
+
 let renderingPeople = false;
 let direction = -1;
 

@@ -1,8 +1,11 @@
 from flask import Flask, jsonify, request
 import urllib.request
 import json
+import pandas as pd
 
 app = Flask(__name__, static_url_path='/static')
+
+cities_df = pd.read_csv('static/uscitiesv1.4.csv')
 
 @app.route('/')
 def index():
@@ -11,8 +14,14 @@ def index():
 @app.route('/getCities', methods=['GET'])
 def getCitites():
   '''database query logic here'''
-  cities = ['Glasgow', 'Aberdeen', 'Edinburgh']
-  return jsonify(cities)
+  # Make sure cities are in the format Elkmont, not ELKMONT (plz).
+  cities = ['Huntsville', 'Elkmont', 'Maumelle']
+  citiesLatLng = {}
+  for city in cities:
+    latLng = cities_df.loc[cities_df['city'] == city][['lat', 'lng']].iloc[0]
+    citiesLatLng[city] = latLng.tolist()
+
+  return jsonify(citiesLatLng)
 
 @app.route('/getPostcodes', methods=['POST'])
 def getPostcodes():
