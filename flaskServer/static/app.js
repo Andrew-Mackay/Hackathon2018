@@ -1,16 +1,21 @@
 let renderingPeople = false;
 let renderingPostcodes = false;
 let renderingCities = true;
-let direction = -1;
+let xp = 0;
+let yp = 0;
 var back;
 var bg;
 var bg2;
 var cityImg;
 var postcodeImg;
+var personImg;
 var font;
 let data = [];
 let cities = {};
 let postcodes = {};
+let people = {};
+let illness = {};
+let postcodeWidth = 0;
 
 function setup() {
   bg = loadImage("static/resources/map.jpg");
@@ -18,6 +23,7 @@ function setup() {
   bg2 = loadImage("static/resources/road.jpg");
   cityImg = loadImage("static/resources/city.png");
   postcodeImg = loadImage("static/resources/postcode.png");
+  personImg = loadImage("static/resources/person.png");
   font = loadFont("static/resources/IndieFlower.ttf");
   createCanvas(windowWidth, windowHeight);
 
@@ -54,8 +60,8 @@ function renderCities(data) {
   }
 }
 
-function createPostcode(name) {
-  this.x = random(10000 - 20);
+function createPostcode(name, count) {
+  this.x = postcodeWidth - (count + 1) * 150;
   this.y = random(1);
   console.log(this.y);
   if (this.y > 0.5) {
@@ -70,9 +76,28 @@ function createPostcode(name) {
 function renderPostcodes(data) {
   count = data.length;
 
+  postcodeWidth = data.length * 150;
+
   while (count) {
     var text = data[count - 1];
-    postcodes[text] = createPostcode(text);
+    postcodes[text] = createPostcode(text, count);
+    count--;
+  }
+}
+
+function createPerson(name, count) {
+  this.x = (count + 1) * 200;
+  this.y = (count + 1) * 20 + 20;
+  this.diameter = 20;
+  return [x, y];
+}
+
+function renderPeople(data) {
+  count = data.length;
+
+  while (count) {
+    var text = data[count - 1];
+    people[text] = createPerson(text, count);
     count--;
   }
 }
@@ -88,10 +113,10 @@ function draw() {
     createCanvas(windowWidth, windowHeight);
   }
   if (renderingPostcodes) {
-    createCanvas(10000, windowHeight);
+    createCanvas(postcodeWidth, windowHeight);
   }
   if (renderingPeople) {
-    createCanvas(windowWidth, 10000);
+    createCanvas(windowWidth * 2, windowHeight * 2);
   }
 
   background(back);
@@ -125,25 +150,33 @@ function draw() {
   }
 
   if (renderingPeople) {
-    //background(150, 150, 150);
+    Object.values(people).map(function(objectValue, index) {
+      image(personImg, objectValue[0], objectValue[1], 150, 300);
+      if (
+        illness[Object.keys(people).find(key => people[key] === objectValue)] ==
+        undefined
+      ) {
+        getDrg(Object.keys(people).find(key => people[key] === objectValue))
+          .then(({ data }) => {
+            illness[
+              Object.keys(people).find(key => people[key] === objectValue)
+            ] = data;
+          })
+          .catch(function(error) {
+            illness[
+              Object.keys(people).find(key => people[key] === objectValue)
+            ] = "unknown illness";
+            console.log(error);
+          });
+      }
 
-    // Shift all elements 1 place to the left
-    for (var i = 1; i < num; i++) {
-      ax[i - 1] = ax[i];
-      ay[i - 1] = ay[i];
-    }
-
-    // Put a new value at the end of the array
-    ax[num - 1] += random(-range, range);
-    ay[num - 1] += random(-range, range);
-
-    // Constrain all cities to the screen
-    ax[num - 1] = constrain(ax[num - 1], 0, width);
-    ay[num - 1] = constrain(ay[num - 1], 0, height);
-
-    for (var j = 1; j < num; j++) {
-      ellipse(ax[j], ay[j], 24, 24);
-    }
+      text(
+        "I am suffering from a " +
+          illness[Object.keys(people).find(key => people[key] === objectValue)],
+        objectValue[0],
+        objectValue[1]
+      );
+    });
   }
 }
 
@@ -177,8 +210,16 @@ function mousePressed() {
               console.log(error);
             });
         } else {
-          renderingPostcodes = false;
-          renderingPeople = true;
+          getPeople("Postcode")
+            .then(({ data }) => {
+              renderingPostcodes = false;
+              renderingPeople = true;
+              //background(150, 150, 150);
+              renderPeople(data);
+            })
+            .catch(function(error) {
+              console.log(error);
+            });
         }
       }
     }
