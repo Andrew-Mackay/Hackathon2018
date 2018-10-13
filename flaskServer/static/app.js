@@ -2,7 +2,7 @@ let renderingPeople = false;
 let direction = -1;
 
 function setup() {
-  createCanvas(720, 400);
+  createCanvas(windowWidth, windowHeight);
   background(150, 150, 150);
   for (var i = 0; i < num; i++) {
     ax[i] = width / 2;
@@ -87,7 +87,10 @@ function mousePressed() {
           getPostcodes("CityName").then(({data}) => {
             background(150, 150, 150);
             renderCities(data);
-          })
+          })  
+          .catch(function (error) {
+            console.log(error);
+          });
         } else {
           renderPeople();
         }
