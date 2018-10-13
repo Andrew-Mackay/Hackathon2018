@@ -1,4 +1,6 @@
 from flask import Flask, jsonify, request
+import urllib.request
+import json
 
 app = Flask(__name__)
 
@@ -25,6 +27,19 @@ def getPeople():
   '''database query logic here'''
   people = ['person1', 'person2', 'person3']
   return jsonify(people)
+
+@app.route('/getDrg', methods=['POST'])
+def getDrg():
+  drgCode = request.form['drgCode']
+  drgDescription = translateDrgCode(drgCode)
+  return jsonify(drgDescription)
+
+
+def translateDrgCode(drgCode):
+  baseURL = "http://www.icd10api.com/?code="
+  getRequest = baseURL + drgCode
+  response = urllib.request.urlopen(getRequest).read()
+  return json.loads(response.decode())['Description']
 
 if __name__ == "__main__":
   app.run()
