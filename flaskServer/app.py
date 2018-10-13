@@ -27,7 +27,7 @@ def getCitites():
 def getPostcodes():
   cityName = request.json['cityName']
   '''database query logic here'''
-  postcodes = ['G127BG', 'AQWFGH', 'FGH423']
+  postcodes = ['56763', '89403', '30298']
   return jsonify(postcodes)
 
 @app.route('/getPeople', methods=['POST'])
