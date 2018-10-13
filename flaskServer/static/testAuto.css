@@ -1,0 +1,32 @@
+body {
+  background-image: url("/static/resources/map.jpg");
+  background-repeat: no-repeat;
+  background-size: 1704px 1456px;
+}
+form {
+  margin: auto;
+  width: 50%;
+  border: 3px solid green;
+  padding: 10px;
+  box-shadow: 5px 10px 8px #888888;
+
+}
+
+ /* Container holding the image and the text */
+ .container {
+  position: relative;
+  text-align: center;
+}
+
+/* Centered text */
+.centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+} 
+
+img {
+  position: relative;
+  top: -200px;
+}
