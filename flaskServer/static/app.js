@@ -6,6 +6,7 @@ var back;
 var bg;
 var bg2;
 var cityImg;
+var postcodeImg;
 var font;
 let data = [];
 let cities = {};
@@ -16,9 +17,10 @@ function setup() {
   back = bg;
   bg2 = loadImage("static/resources/road.jpg");
   cityImg = loadImage("static/resources/city.png");
+  postcodeImg = loadImage("static/resources/postcode.png");
   font = loadFont("static/resources/IndieFlower.ttf");
   createCanvas(windowWidth, windowHeight);
-  //background(150, 150, 150);
+
   for (var i = 0; i < num; i++) {
     ax[i] = width / 2;
     ay[i] = height / 2;
@@ -38,7 +40,7 @@ function setup() {
 function createCity(name) {
   this.x = random(width - 20);
   this.y = random(height - 20);
-  this.diameter = 20;
+  this.diameter = 50;
   return [x, y];
 }
 
@@ -53,8 +55,14 @@ function renderCities(data) {
 }
 
 function createPostcode(name) {
-  this.x = random(width - 20);
-  this.y = random(height - 20);
+  this.x = random(10000 - 20);
+  this.y = random(1);
+  console.log(this.y);
+  if (this.y > 0.5) {
+    this.y = 50;
+  } else {
+    this.y = height - 220;
+  }
   this.diameter = 20;
   return [x, y];
 }
@@ -76,6 +84,16 @@ var ax = [];
 var ay = [];
 
 function draw() {
+  if (renderingCities) {
+    createCanvas(windowWidth, windowHeight);
+  }
+  if (renderingPostcodes) {
+    createCanvas(10000, windowHeight);
+  }
+  if (renderingPeople) {
+    createCanvas(windowWidth, 10000);
+  }
+
   background(back);
 
   if (renderingCities) {
@@ -95,7 +113,7 @@ function draw() {
   if (renderingPostcodes) {
     back = bg2;
     Object.values(postcodes).map(function(objectValue, index) {
-      image(cityImg, objectValue[0], objectValue[1], 50, 50);
+      image(postcodeImg, objectValue[0], objectValue[1], 100, 200);
       textFont(font);
       textSize(20);
       text(
