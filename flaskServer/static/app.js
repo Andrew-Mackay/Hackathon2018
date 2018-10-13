@@ -1,15 +1,22 @@
-
 let renderingPeople = false;
+let renderingPostcodes = false;
 let renderingCities = true;
 let direction = -1;
+var back;
 var bg;
+var bg2;
 var cityImg;
+var font;
 let data = [];
-let points = {};
+let cities = {};
+let postcodes = {};
 
 function setup() {
   bg = loadImage("static/resources/map.jpg");
+  back = bg;
+  bg2 = loadImage("static/resources/road.jpg");
   cityImg = loadImage("static/resources/city.png");
+  font = loadFont("static/resources/IndieFlower.ttf");
   createCanvas(windowWidth, windowHeight);
   //background(150, 150, 150);
   for (var i = 0; i < num; i++) {
@@ -32,9 +39,6 @@ function createCity(name) {
   this.x = random(width - 20);
   this.y = random(height - 20);
   this.diameter = 20;
-  //image(cityImg, this.x, this.y, this.diameter, this.diameter);
-  //rect(this.x, this.y, this.diameter, this.diameter);
-  //text(name, this.x, this.y);
   return [x, y];
 }
 
@@ -43,7 +47,24 @@ function renderCities(data) {
 
   while (count) {
     var text = data[count - 1];
-    points[text] = createCity(text);
+    cities[text] = createCity(text);
+    count--;
+  }
+}
+
+function createPostcode(name) {
+  this.x = random(width - 20);
+  this.y = random(height - 20);
+  this.diameter = 20;
+  return [x, y];
+}
+
+function renderPostcodes(data) {
+  count = data.length;
+
+  while (count) {
+    var text = data[count - 1];
+    postcodes[text] = createPostcode(text);
     count--;
   }
 }
@@ -59,13 +80,30 @@ var ax = [];
 var ay = [];
 
 function draw() {
-  background(bg);
+  background(back);
 
   if (renderingCities) {
-    Object.values(points).map(function(objectValue, index) {
+    back = bg;
+    Object.values(cities).map(function(objectValue, index) {
       image(cityImg, objectValue[0], objectValue[1], 50, 50);
+      textFont(font);
+      textSize(20);
       text(
-        Object.keys(points).find(key => points[key] === objectValue),
+        Object.keys(cities).find(key => cities[key] === objectValue),
+        objectValue[0],
+        objectValue[1]
+      );
+    });
+  }
+
+  if (renderingPostcodes) {
+    back = bg2;
+    Object.values(postcodes).map(function(objectValue, index) {
+      image(cityImg, objectValue[0], objectValue[1], 50, 50);
+      textFont(font);
+      textSize(20);
+      text(
+        Object.keys(postcodes).find(key => postcodes[key] === objectValue),
         objectValue[0],
         objectValue[1]
       );
@@ -85,7 +123,7 @@ function draw() {
     ax[num - 1] += random(-range, range);
     ay[num - 1] += random(-range, range);
 
-    // Constrain all points to the screen
+    // Constrain all cities to the screen
     ax[num - 1] = constrain(ax[num - 1], 0, width);
     ay[num - 1] = constrain(ay[num - 1], 0, height);
 
@@ -96,6 +134,12 @@ function draw() {
 }
 
 function mousePressed() {
+  var points = {};
+  if (renderingCities) {
+    points = cities;
+  } else if (renderingPostcodes) {
+    points = postcodes;
+  }
   Object.values(points).map(function(objectValue, index) {
     if (
       mouseX >= parseInt(objectValue[0]) &&
@@ -111,8 +155,9 @@ function mousePressed() {
           getPostcodes("CityName")
             .then(({ data }) => {
               renderingCities = false;
+              renderingPostcodes = true;
               //background(150, 150, 150);
-              renderCities(data);
+              renderPostcodes(data);
             })
             .catch(function(error) {
               console.log(error);
