@@ -1,28 +1,26 @@
-let BASE_URL = "http://127.0.0.1:5000/"
+BASE_URL = "http://127.0.0.1:5000/";
 
-// const axios = require('axios');
-
-function getCities() {
+export function getCities() {
   axios.get(BASE_URL + 'getCities')
   .then(function (response) {
     // handle success
-    console.log(response['data']);
+    return(response['data']);
   })
   .catch(function (error) {
     // handle error
     console.log(error);
   })
-}
+};
 
 function getPostcodes(cityName) {
   axios.post(BASE_URL + 'getPostcodes', {cityName: cityName})
   .then(function (response) {
     // handle success
-    console.log(response['data']);
+    return(response['data']);
   })
   .catch(function (error) {
     // handle error
-    console.log(error, "eror");
+    console.log(error);
   })
 }
 
