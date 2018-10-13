@@ -1,4 +1,6 @@
 from flask import Flask, jsonify, request
+import urllib.request
+import json
 
 app = Flask(__name__)
 
@@ -25,6 +27,19 @@ def getPeople():
   '''database query logic here'''
   people = ['person1', 'person2', 'person3']
   return jsonify(people)
+
+@app.route('/getIllness', methods=['POST'])
+def getIllness():
+  illnessCode = request.form['illnessCode']
+  illnessDescription = translateIllnessCode(illnessCode)
+  return jsonify(illnessDescription)
+
+
+def translateIllnessCode(illnessCode):
+  baseURL = "http://www.icd10api.com/?code="
+  getRequest = baseURL + illnessCode
+  response = urllib.request.urlopen(getRequest).read()
+  return json.loads(response.decode())['Description']
 
 if __name__ == "__main__":
   app.run()
