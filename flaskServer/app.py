@@ -6,6 +6,7 @@ from pprint import pprint
 import time
 import json
 import pandas as pd
+import numpy as np
 
 app = Flask(__name__, static_url_path='/static')
 
@@ -18,6 +19,15 @@ cities_coll = db.cities
 def index():
   return app.send_static_file('index.html')
 
+@app.route('/test')
+def testAuto():
+  return app.send_static_file('testAuto.html')
+
+@app.route('/getCityNames')
+def getCityNames():
+  names = cities_df['city'].tolist()
+  return jsonify(names)
+
 @app.route('/getCities', methods=['GET'])
 def getCitites():
 
@@ -26,10 +36,14 @@ def getCitites():
 
   #cities = ['Huntsville', 'Elkmont', 'Maumelle']
   citiesLatLng = {}
-  for city in cities:
-    latLng = cities_df.loc[cities_df['city'] == city][['lat', 'lng']].iloc[0]
-    citiesLatLng[city] = latLng.tolist()
-
+  selectedForColumns = cities_df[['city', 'lat', 'lng']]
+  i = 0
+  for row in selectedForColumns.iterrows():
+    # print(row[0], row[1][['lat', 'lng']])
+    citiesLatLng[row[1]['city']] = row[1][['lat', 'lng']].tolist()
+    i+=1
+    if i > 8000:
+      break
   return jsonify(citiesLatLng)
 
 @app.route('/getPostcodes', methods=['POST'])
