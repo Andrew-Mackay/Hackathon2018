@@ -1,35 +1,45 @@
 let renderingPeople = false;
+let renderingCities = true;
 let direction = -1;
+var bg;
+var cityImg;
+let data = [];
+let points = {};
 
 function setup() {
+  bg = loadImage("static/resources/map.jpg");
+  cityImg = loadImage("static/resources/city.png");
   createCanvas(windowWidth, windowHeight);
-  background(150, 150, 150);
+  //background(150, 150, 150);
   for (var i = 0; i < num; i++) {
     ax[i] = width / 2;
     ay[i] = height / 2;
   }
 
-  getCities().then(({data}) => {
-    renderCities(data);
-  })
-  .catch(function (error) {
-    console.log(error);
-  });
+  getCities()
+    .then(({ data }) => {
+      data = data;
+      renderCities(data);
+    })
+    .catch(function(error) {
+      console.log(error);
+    });
+  //noLoop();
 }
 
 function createCity(name) {
   this.x = random(width - 20);
   this.y = random(height - 20);
   this.diameter = 20;
-  rect(this.x, this.y, this.diameter, this.diameter);
-  text(name, this.x, this.y);
+  //image(cityImg, this.x, this.y, this.diameter, this.diameter);
+  //rect(this.x, this.y, this.diameter, this.diameter);
+  //text(name, this.x, this.y);
   return [x, y];
 }
 
 function renderCities(data) {
   count = data.length;
 
-  points = {};
   while (count) {
     var text = data[count - 1];
     points[text] = createCity(text);
@@ -48,8 +58,21 @@ var ax = [];
 var ay = [];
 
 function draw() {
+  background(bg);
+
+  if (renderingCities) {
+    Object.values(points).map(function(objectValue, index) {
+      image(cityImg, objectValue[0], objectValue[1], 50, 50);
+      text(
+        Object.keys(points).find(key => points[key] === objectValue),
+        objectValue[0],
+        objectValue[1]
+      );
+    });
+  }
+
   if (renderingPeople) {
-    background(150, 150, 150);
+    //background(150, 150, 150);
 
     // Shift all elements 1 place to the left
     for (var i = 1; i < num; i++) {
@@ -84,21 +107,21 @@ function mousePressed() {
         if (
           isNaN(Object.keys(points).find(key => points[key] === objectValue))
         ) {
-          getPostcodes("CityName").then(({data}) => {
-            background(150, 150, 150);
-            renderCities(data);
-          })  
-          .catch(function (error) {
-            console.log(error);
-          });
+          getPostcodes("CityName")
+            .then(({ data }) => {
+              renderingCities = false;
+              //background(150, 150, 150);
+              renderCities(data);
+            })
+            .catch(function(error) {
+              console.log(error);
+            });
         } else {
           renderPeople();
         }
       }
     }
   });
-
-
 }
 
 //----------------------------------------------
@@ -106,17 +129,17 @@ function mousePressed() {
 BASE_URL = "http://127.0.0.1:5000/";
 
 function getCities() {
-  return axios.get(BASE_URL + 'getCities');
-};
+  return axios.get(BASE_URL + "getCities");
+}
 
 function getPostcodes(cityName) {
-  return axios.post(BASE_URL + 'getPostcodes', {cityName: cityName});
-};
+  return axios.post(BASE_URL + "getPostcodes", { cityName: cityName });
+}
 
 function getPeople(postCode) {
-  return axios.post(BASE_URL + 'getPeople', {postCode: postCode});
-};
+  return axios.post(BASE_URL + "getPeople", { postCode: postCode });
+}
 
 function getDrg(drgCode) {
-  return axios.post(BASE_URL + 'getDrg', {'drgCode': drgCode})
-};
+  return axios.post(BASE_URL + "getDrg", { drgCode: drgCode });
+}
