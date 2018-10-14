@@ -8,7 +8,7 @@ import json
 import pandas as pd
 import numpy as np
 
-USE_MONGO = True
+USE_MONGO = False
 
 app = Flask(__name__, static_url_path='/static')
 
@@ -16,6 +16,13 @@ cities_df = pd.read_csv('static/uscitiesv1.4.csv')
 db = MongoClient('localhost', 27017).hackathon
 admissions_coll = db.admissions
 cities_coll = db.cities
+
+def getIllness(drg):
+  baseURL = "http://www.icd10api.com/?code="
+  getRequest = baseURL + drgCode
+  response = urllib.request.urlopen(getRequest).read()
+  return json.loads(response.decode())['Description']
+
 
 def generate_person_blob(account_no):
     admissions = admissions_coll.find({"City": "COUNTY", "Postcode": 27214, "AccountNumber": account_no})
@@ -28,6 +35,7 @@ def generate_person_blob(account_no):
         raw_data = ad
         for header in admission_headers:
             admission_blob[header] = ad[header]
+        admission_blob['Illness'] = getIllness(admission_blob['Drg'])
         all_ads.append(admission_blob)
     
     for key in raw_data.keys():
@@ -95,19 +103,6 @@ def getPeople():
     people = ['person1', 'person2', 'person3']
 
   return jsonify(people)
-
-@app.route('/getDrg', methods=['POST'])
-def getDrg():
-  drgCode = request.json['drgCode']
-  drgDescription = translateDrgCode(drgCode)
-  return jsonify(drgDescription)
-
-
-def translateDrgCode(drgCode):
-  baseURL = "http://www.icd10api.com/?code="
-  getRequest = baseURL + drgCode
-  response = urllib.request.urlopen(getRequest).read()
-  return json.loads(response.decode())['Description']
 
 if __name__ == "__main__":
   app.run()
