@@ -8,7 +8,7 @@ import json
 import pandas as pd
 import numpy as np
 
-USE_MONGO = True
+USE_MONGO = False
 
 app = Flask(__name__, static_url_path='/static')
 

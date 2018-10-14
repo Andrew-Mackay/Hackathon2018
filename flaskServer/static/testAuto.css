@@ -4,6 +4,7 @@ form {
   border: 3px solid green;
   padding: 10px;
   box-shadow: 5px 10px 8px #888888;
+  
 }
 
  /* Container holding the image and the text */
@@ -15,12 +16,20 @@ form {
 /* Centered text */
 .centered {
   position: absolute;
-  top: 50%;
+  /* top: 50%; */
+  top: 500px;
   left: 50%;
   transform: translate(-50%, -50%);
 } 
 
-img {
+#map {
   position: relative;
   top: -200px;
+}
+
+#logo {
+  position: absolute;
+  top: -40px;
+  left: 300px;
+  z-index: 200;
 }
