@@ -8,7 +8,7 @@ import json
 import pandas as pd
 import numpy as np
 
-USE_MONGO = False
+USE_MONGO = True
 
 app = Flask(__name__, static_url_path='/static')
 
@@ -24,8 +24,8 @@ def getIllness(drg):
   return json.loads(response.decode())['Description']
 
 
-def generate_person_blob(account_no):
-    admissions = admissions_coll.find({"City": "COUNTY", "Postcode": 27214, "AccountNumber": account_no})
+def generate_person_blob(account_no, cityName, postCode):
+    admissions = admissions_coll.find({"City": cityName, "Postcode": int(postCode), "AccountNumber": account_no})
     admission_headers = set(["AdmissionDate", "DischargeDate", "Drg", "Cpt", "ServiceDate", "DaysOrUnits", "Charges"])
     person_blob = {}
     raw_data = {}
@@ -33,6 +33,7 @@ def generate_person_blob(account_no):
     all_ads = []
     for ad in admissions:
         raw_data = ad
+        admission_blob = {}
         for header in admission_headers:
             admission_blob[header] = ad[header]
         admission_blob['Illness'] = getIllness(admission_blob['Drg'])
@@ -43,6 +44,7 @@ def generate_person_blob(account_no):
             person_blob[key] = ad[key]
 
     person_blob["admissions"] = all_ads
+    del person_blob["_id"]
     return person_blob
 
 @app.route('/')
@@ -86,7 +88,7 @@ def getPostcodes():
   cityName = request.json['cityName']
   if USE_MONGO:
     postcodes = admissions_coll.find({"City": cityName}).distinct("Postcode")
-
+ 
   else:
     postcodes = ['56763', '89403', '30298']
 
@@ -96,8 +98,13 @@ def getPostcodes():
 def getPeople():
   postCode = request.json['postCode']
   cityName = request.json['cityName']
+  people = []
+
   if USE_MONGO:
-    people = admissions_coll.find({"City": cityName, "Postcode": int(postCode)}).distinct("AccountNumber")
+    acc_nos = admissions_coll.find({"City": cityName, "Postcode": int(postCode)}).distinct("AccountNumber")
+    print(postCode, cityName, acc_nos)
+    for no in acc_nos:
+      people.append(generate_person_blob(no, cityName, postCode))
 
   else:
     people = ['person1', 'person2', 'person3']
