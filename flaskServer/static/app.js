@@ -95,12 +95,25 @@ function renderPostcodes(data) {
   }
 }
 
-function createPerson(count, first, last, drg) {
+var createPerson = async function(count, first, last, drg) {
   this.x = (count + 1) * 200;
   this.y = (count + 1) * 20 + 20;
   this.diameter = 20;
-  return [x, y, first + " " + last, drg];
-}
+  illnesses = "";
+  Object.values(drg.split(",")).map(function(drgcode, index) {
+    getDrg(drgcode)
+      .then(({ data }) => {
+        console.log(data);
+        illnesses += data + " & a";
+      })
+      .catch(function(error) {
+        illnesses += "unknown illness" + " & a";
+      });
+  });
+
+  console.log(illnesses);
+  return [x, y, first + " " + last, illnesses];
+};
 
 function renderPeople(data) {
   //console.log(data);
@@ -174,6 +187,8 @@ function draw() {
   if (renderingPeople) {
     Object.values(people).map(function(objectValue, index) {
       image(personImg, objectValue[0], objectValue[1], 150, 300);
+
+      /*
       if (
         illness[Object.keys(people).find(key => people[key] === objectValue)] ==
           undefined ||
@@ -195,7 +210,7 @@ function draw() {
           Object.keys(people).find(key => people[key] === objectValue)
         ] = illnesses;
         console.log(illnesses);
-      }
+      }*/
 
       text(
         "I am suffering from a " +
