@@ -8,7 +8,7 @@ import json
 import pandas as pd
 import numpy as np
 
-USE_MONGO = False
+USE_MONGO = True
 
 app = Flask(__name__, static_url_path='/static')
 
@@ -73,7 +73,7 @@ def getPeople():
 
   else:
     people = ['person1', 'person2', 'person3']
-    
+
   return jsonify(people)
 
 @app.route('/getDrg', methods=['POST'])
