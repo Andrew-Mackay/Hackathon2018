@@ -119,16 +119,18 @@ var createPerson = function(count, first, last, drg, gender, age, allData) {
   //     });
   // });
 
-  let drgs = drg.split(",");
-  let illnesses = "";
-  for (drg in drgs) {
-    illnesses += srg + " & a";
-  }
+  // let drgs = drg.split(",");
+  // let illnesses = "";
+  // for (drg in drgs) {
+  //   illnesses += srg + " & a";
+  // }
+
+  illnesses = "ajdkkdj ksalfdash fha h"
 
   return [x, y, first + " " + last, illnesses, gender, age, allData];
 };
 
-async function renderPeople(data) {
+function renderPeople(data) {
   //console.log(data);
   count = data.length;
   peopleHeight = data.length * 350;
