@@ -16,18 +16,19 @@ admissions_coll = db.admissions
 cities_coll = db.cities
 
 def generate_person_blob(account_no):
-    admissions = coll.find({"City": "COUNTY", "Postcode": 27214, "AccountNumber": account_no})
+    admissions = admissions_coll.find({"City": "COUNTY", "Postcode": 27214, "AccountNumber": account_no})
     admission_headers = set(["AdmissionDate", "DischargeDate", "Drg", "Cpt", "ServiceDate", "DaysOrUnits", "Charges"])
     person_blob = {}
+    raw_data = {}
 
     all_ads = []
     for ad in admissions:
-        admission_blob = {}
+        raw_data = ad
         for header in admission_headers:
             admission_blob[header] = ad[header]
         all_ads.append(admission_blob)
-
-    for key in ad.keys():
+    
+    for key in raw_data.keys():
         if key not in admission_headers:
             person_blob[key] = ad[key]
 
@@ -70,7 +71,9 @@ def getCityNames():
 @app.route('/getPostcodes', methods=['POST'])
 def getPostcodes():
   cityName = request.json['cityName']
+  print("Begin search")
   postcodes = admissions_coll.find({"City": cityName}).distinct("Postcode")
+  print("End search")
   # postcodes = ['56763', '89403', '30298']
   return jsonify(postcodes)
 
@@ -78,10 +81,11 @@ def getPostcodes():
 def getPeople():
   postCode = request.json['postCode']
   cityName = request.json['cityName']
-  acc_nos = admissions_coll.find({"City": cityName, "Postcode": postCode}).distinct("AccountNumber")
+  acc_nos = admissions_coll.find({"City": cityName, "Postcode": int(postCode)}).distinct("AccountNumber")
   people = []
   for no in acc_nos:
     people.append(generate_person_blob(no))
+  print("Got people, ", len(people))
   return jsonify(people)
 
 @app.route('/getDrg', methods=['POST'])

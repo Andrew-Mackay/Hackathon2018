@@ -104,22 +104,28 @@ var createPerson = function(count, first, last, drg, gender, allData) {
   this.y = (count + 1) * 20 + 20;
   this.diameter = 20;
 
-  illnesses = "";
-  Object.values(drg.split(",")).map(async function(drgcode, index) {
-    await getDrg(drgcode)
-      .then(({ data }) => {
-        console.log(data);
-        illnesses += data + " & a";
-      })
-      .catch(function(error) {
-        illnesses += "unknown illness" + " & a";
-      });
-  });
+  // illnesses = "";
+  // Object.values(drg.split(",")).map(async function(drgcode, index) {
+  //   await getDrg(drgcode)
+  //     .then(({ data }) => {
+  //       console.log(data);
+  //       illnesses += data + " & a";
+  //     })
+  //     .catch(function(error) {
+  //       illnesses += "unknown illness" + " & a";
+  //     });
+  // });
+
+  let drgs = drg.split(",");
+  let illnesses = "";
+  for (drg in drgs) {
+    illnesses += srg + " & a";
+  }
 
   return [x, y, first + " " + last, illnesses, gender, allData];
 };
 
-function renderPeople(data) {
+async function renderPeople(data) {
   //console.log(data);
   count = data.length;
 
@@ -139,7 +145,7 @@ function renderPeople(data) {
     });
     drg = drg.slice(0, -1);
 
-    people[account] = createPerson(count, first, last, drg, gender, allData);
+    people[account] = await createPerson(count, first, last, drg, gender, allData);
     console.log(people);
     count--;
   }
@@ -301,6 +307,12 @@ function getPeople(postCode, cityName) {
   });
 }
 
-async function getDrg(drgCode) {
-  return awaitaxios.post(BASE_URL + "getDrg", { drgCode: drgCode });
+function getDrg(drgCode) {
+  axios.post(BASE_URL + "getDrg", { drgCode: drgCode }).then(
+    ({data}) => {
+      return data;
+    }
+  ).catch(function(err) {
+    return "unknown illness"
+  });
 }
