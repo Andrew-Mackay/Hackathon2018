@@ -8,6 +8,8 @@ import json
 import pandas as pd
 import numpy as np
 
+USE_MONGO = True
+
 app = Flask(__name__, static_url_path='/static')
 
 cities_df = pd.read_csv('static/uscitiesv1.4.csv')
@@ -45,9 +47,12 @@ def testAuto():
 
 @app.route('/getCityNames')
 def getCityNames():
-  # names = cities_df['city'].tolist()
-  names = cities_coll.find().distinct("_id")
+  if USE_MONGO:
+    names = cities_coll.find().distinct("_id")
 
+  else:
+    names = cities_df['city'].tolist()
+  
   return jsonify(names)
 
 # @app.route('/getCities', methods=['GET'])
@@ -71,21 +76,24 @@ def getCityNames():
 @app.route('/getPostcodes', methods=['POST'])
 def getPostcodes():
   cityName = request.json['cityName']
-  print("Begin search")
-  postcodes = admissions_coll.find({"City": cityName}).distinct("Postcode")
-  print("End search")
-  # postcodes = ['56763', '89403', '30298']
+  if USE_MONGO:
+    postcodes = admissions_coll.find({"City": cityName}).distinct("Postcode")
+
+  else:
+    postcodes = ['56763', '89403', '30298']
+
   return jsonify(postcodes)
 
 @app.route('/getPeople', methods=['POST'])
 def getPeople():
   postCode = request.json['postCode']
   cityName = request.json['cityName']
-  acc_nos = admissions_coll.find({"City": cityName, "Postcode": int(postCode)}).distinct("AccountNumber")
-  people = []
-  for no in acc_nos:
-    people.append(generate_person_blob(no))
-  print("Got people, ", len(people))
+  if USE_MONGO:
+    people = admissions_coll.find({"City": cityName, "Postcode": int(postCode)}).distinct("AccountNumber")
+
+  else:
+    people = ['person1', 'person2', 'person3']
+
   return jsonify(people)
 
 @app.route('/getDrg', methods=['POST'])
