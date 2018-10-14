@@ -6,6 +6,7 @@ let yp = 0;
 var back;
 var bg;
 var bg2;
+var bg3;
 var cityImg;
 var postcodeImg;
 var personImg;
@@ -18,12 +19,14 @@ let postcodes = {};
 let people = {};
 let illness = {};
 let postcodeWidth = 0;
+let peopleHeight = 0;
 let cityName = "";
 
 function setup() {
   bg = loadImage("static/resources/map.jpg");
   back = bg;
   bg2 = loadImage("static/resources/road.jpg");
+  bg3 = loadImage("static/resources/people.jpg");
   cityImg = loadImage("static/resources/city.png");
   postcodeImg = loadImage("static/resources/postcode.png");
   personImg = loadImage("static/resources/person.png");
@@ -99,16 +102,15 @@ function renderPostcodes(data) {
   }
 }
 
-var createPerson = function(count, first, last, drg, gender, allData) {
-  this.x = (count + 1) * 200;
-  this.y = (count + 1) * 20 + 20;
+var createPerson = function(count, first, last, drg, gender, age, allData) {
+  this.x = random(250) + 50;
+  this.y = (count - 1) * 350 + 20;
   this.diameter = 20;
 
   illnesses = "";
   Object.values(drg.split(",")).map(async function(drgcode, index) {
     await getDrg(drgcode)
       .then(({ data }) => {
-        console.log(data);
         illnesses += data + " & a";
       })
       .catch(function(error) {
@@ -116,12 +118,13 @@ var createPerson = function(count, first, last, drg, gender, allData) {
       });
   });
 
-  return [x, y, first + " " + last, illnesses, gender, allData];
+  return [x, y, first + " " + last, illnesses, gender, age, allData];
 };
 
 function renderPeople(data) {
   //console.log(data);
   count = data.length;
+  peopleHeight = data.length * 350;
 
   while (count) {
     var account = data[count - 1].AccountNumber;
@@ -130,7 +133,18 @@ function renderPeople(data) {
     var admissions = data[count - 1].admissions;
     var drg = [];
     var gender = data[count - 1].Gender;
-    var age = data[count - 1].Gender;
+    var age = data[count - 1].BirthDate;
+
+    age = age.substr(age.length - 4);
+    age = 2018 - parseInt(age);
+
+    if (age < 20) {
+      age = 20;
+    }
+
+    if (age > 80) {
+      age = 80;
+    }
 
     allData = data[count - 1];
 
@@ -139,7 +153,15 @@ function renderPeople(data) {
     });
     drg = drg.slice(0, -1);
 
-    people[account] = createPerson(count, first, last, drg, gender, allData);
+    people[account] = createPerson(
+      count,
+      first,
+      last,
+      drg,
+      gender,
+      age,
+      allData
+    );
     console.log(people);
     count--;
   }
@@ -159,7 +181,7 @@ function draw() {
     createCanvas(postcodeWidth, windowHeight);
   }
   if (renderingPeople) {
-    createCanvas(windowWidth * 2, windowHeight * 2);
+    createCanvas(500, peopleHeight);
   }
 
   background(back);
@@ -193,13 +215,14 @@ function draw() {
   }
 
   if (renderingPeople) {
+    back = bg3;
     Object.values(people).map(function(objectValue, index) {
-      if (objectValue[3] == "M") {
+      if (objectValue[4] == "M") {
         personImg = personmImg;
       } else {
         personImg = personfImg;
       }
-      image(personImg, objectValue[0], objectValue[1], 150, 300);
+      image(personImg, objectValue[0], objectValue[1], 150, objectValue[5] * 4);
 
       /*
       if (
@@ -230,7 +253,7 @@ function draw() {
         objectValue[0],
         objectValue[1]
       );
-      text(objectValue[2], objectValue[0], objectValue[1] + 300);
+      text(objectValue[2], objectValue[0], objectValue[1] + objectValue[5] * 4);
     });
   }
 }
@@ -241,29 +264,21 @@ function mousePressed() {
     points = cities;
   } else if (renderingPostcodes) {
     points = postcodes;
+  } else if (renderingPeople) {
+    points = people;
   }
   Object.values(points).map(function(objectValue, index) {
     if (
       mouseX >= parseInt(objectValue[0]) &&
-      mouseX <= parseInt(objectValue[0]) + 20
+      mouseX <= parseInt(objectValue[0]) + 150
     ) {
       if (
         mouseY >= parseInt(objectValue[1]) &&
-        mouseY <= parseInt(objectValue[1]) + 20
+        mouseY <= parseInt(objectValue[1]) + 300
       ) {
-        if (
-          isNaN(Object.keys(points).find(key => points[key] === objectValue))
-        ) {
-          // getPostcodes("CityName")
-          //   .then(({ data }) => {
-          //     renderingCities = false;
-          //     renderingPostcodes = true;
-          //     //background(150, 150, 150);
-          //     renderPostcodes(data);
-          //   })
-          //   .catch(function(error) {
-          //     console.log(error);
-          //   });
+        if (renderingPeople) {
+          //clicked on person
+          alert(JSON.stringify(objectValue[objectValue.length - 1], null, 2));
         } else {
           getPeople(
             Object.keys(points).find(key => points[key] === objectValue),
