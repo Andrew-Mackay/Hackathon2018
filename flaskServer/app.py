@@ -21,7 +21,11 @@ def getIllness(drg):
   baseURL = "http://www.icd10api.com/?code="
   getRequest = baseURL + drgCode
   response = urllib.request.urlopen(getRequest).read()
-  return json.loads(response.decode())['Description']
+  response = json.loads(response)
+  if response["Response"] == "True":
+    return json.loads(response.decode())['Description']
+
+  return "unknown illness"
 
 
 def generate_person_blob(account_no, cityName, postCode):
