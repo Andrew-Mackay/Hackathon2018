@@ -66,7 +66,42 @@ def getPostcodes():
 def getPeople():
   postCode = request.json['postCode']
   '''database query logic here'''
-  people = ['Y35.3', 'Y40.0', 'Y06.2','S80.0','S81.9','S89.9','T35.2','Z41.3']
+  people = [{'AccountNumber': 206180855588,
+ 'BirthDate': '8/18/1937',
+ 'City': 'COUNTY',
+ 'District': 'GUILFORD',
+ 'FirstName': 'Rease',
+ 'Gender': 'F',
+ 'InsurancePlan': 'Commonwealth Care',
+ 'InsurerName': 'Rightcare',
+ 'LastName': 'Finkelman',
+ 'Number': 8194,
+ 'PatientStatus': 'F',
+ 'Postcode': 27214,
+ 'Region': '',
+ 'Street': 'RYLAN DRIVE',
+ 'Unit': '',
+ 'admissions': [{'AdmissionDate': '4/22/1955',
+                 'Charges': '$391.08',
+                 'Cpt': 49320,
+                 'DaysOrUnits': 2,
+                 'DischargeDate': '4/29/1955',
+                 'Drg': 'S43083S',
+                 'ServiceDate': '4/25/1955'},
+                {'AdmissionDate': '4/22/1955',
+                 'Charges': '$51.30',
+                 'Cpt': 63048,
+                 'DaysOrUnits': 5,
+                 'DischargeDate': '4/30/1955',
+                 'Drg': 'S31629D',
+                 'ServiceDate': '4/26/1955'},
+                {'AdmissionDate': '4/22/1955',
+                 'Charges': '$103.36',
+                 'Cpt': 60200,
+                 'DaysOrUnits': 1,
+                 'DischargeDate': '5/1/1955',
+                 'Drg': 'S31629D',
+                 'ServiceDate': '4/22/1955'}]}]
   return jsonify(people)
 
 @app.route('/getDrg', methods=['POST'])

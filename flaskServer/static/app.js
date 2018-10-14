@@ -16,8 +16,7 @@ let postcodes = {};
 let people = {};
 let illness = {};
 let postcodeWidth = 0;
-let cityName = '';
-
+let cityName = "";
 
 function setup() {
   bg = loadImage("static/resources/map.jpg");
@@ -34,17 +33,15 @@ function setup() {
     ay[i] = height / 2;
   }
 
-  cityName = location.search.split('city=')[1]
+  cityName = location.search.split("city=")[1];
   getPostcodes(cityName)
-  .then(({ data }) => {
-    renderingCities = false;
-    renderingPostcodes = true;
-    //background(150, 150, 150);
-    renderPostcodes(data);
-  })
-  .catch(function(error) {
-    console.log(error);
-  });
+    .then(({ data }) => {
+      renderingCities = false;
+      renderingPostcodes = true;
+      //background(150, 150, 150);
+      renderPostcodes(data);
+    })
+    .catch(function(error) {});
   // getCities()
   //   .then(({ data }) => {
   //     data = data;
@@ -77,7 +74,6 @@ function setup() {
 function createPostcode(name, count) {
   this.x = postcodeWidth - (count + 1) * 150;
   this.y = random(1);
-  console.log(this.y);
   if (this.y > 0.5) {
     this.y = 50;
   } else {
@@ -99,19 +95,31 @@ function renderPostcodes(data) {
   }
 }
 
-function createPerson(name, count) {
+function createPerson(count, first, last, drg) {
   this.x = (count + 1) * 200;
   this.y = (count + 1) * 20 + 20;
   this.diameter = 20;
-  return [x, y];
+  return [x, y, first + " " + last, drg];
 }
 
 function renderPeople(data) {
+  //console.log(data);
   count = data.length;
 
   while (count) {
-    var text = data[count - 1];
-    people[text] = createPerson(text, count);
+    var account = data[count - 1].AccountNumber;
+    var first = data[count - 1].FirstName;
+    var last = data[count - 1].LastName;
+    var admissions = data[count - 1].admissions;
+    var drg = [];
+
+    Object.values(admissions).map(function(objectValue, index) {
+      drg += objectValue.Drg + ",";
+    });
+    drg = drg.slice(0, -1);
+
+    people[account] = createPerson(count, first, last, drg);
+    console.log(people);
     count--;
   }
 }
@@ -168,20 +176,25 @@ function draw() {
       image(personImg, objectValue[0], objectValue[1], 150, 300);
       if (
         illness[Object.keys(people).find(key => people[key] === objectValue)] ==
-        undefined
+          undefined ||
+        illness[Object.keys(people).find(key => people[key] === objectValue)] ==
+          ""
       ) {
-        getDrg(Object.keys(people).find(key => people[key] === objectValue))
-          .then(({ data }) => {
-            illness[
-              Object.keys(people).find(key => people[key] === objectValue)
-            ] = data;
-          })
-          .catch(function(error) {
-            illness[
-              Object.keys(people).find(key => people[key] === objectValue)
-            ] = "unknown illness";
-            console.log(error);
-          });
+        illnesses = "";
+        Object.values(objectValue[3].split(",")).map(function(drgcode, index) {
+          getDrg(drgcode)
+            .then(({ data }) => {
+              console.log(data);
+              illnesses += data + " & a";
+            })
+            .catch(function(error) {
+              illnesses += "unknown illness" + " & a";
+            });
+        });
+        illness[
+          Object.keys(people).find(key => people[key] === objectValue)
+        ] = illnesses;
+        console.log(illnesses);
       }
 
       text(
@@ -190,6 +203,7 @@ function draw() {
         objectValue[0],
         objectValue[1]
       );
+      text(objectValue[2], objectValue[0], objectValue[1] + 300);
     });
   }
 }
@@ -224,16 +238,17 @@ function mousePressed() {
           //     console.log(error);
           //   });
         } else {
-          getPeople(Object.keys(points).find(key => points[key] === objectValue), cityName)
+          getPeople(
+            Object.keys(points).find(key => points[key] === objectValue),
+            cityName
+          )
             .then(({ data }) => {
               renderingPostcodes = false;
               renderingPeople = true;
               //background(150, 150, 150);
               renderPeople(data);
             })
-            .catch(function(error) {
-              console.log(error);
-            });
+            .catch(function(error) {});
         }
       }
     }
@@ -253,9 +268,12 @@ function getPostcodes(cityName) {
 }
 
 function getPeople(postCode, cityName) {
-  return axios.post(BASE_URL + "getPeople", { postCode: postCode, cityName: cityName });
+  return axios.post(BASE_URL + "getPeople", {
+    postCode: postCode,
+    cityName: cityName
+  });
 }
 
-function getDrg(drgCode) {
-  return axios.post(BASE_URL + "getDrg", { drgCode: drgCode });
+async function getDrg(drgCode) {
+  return awaitaxios.post(BASE_URL + "getDrg", { drgCode: drgCode });
 }
