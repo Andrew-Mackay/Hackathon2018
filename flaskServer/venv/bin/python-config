@@ -1,4 +1,4 @@
-#!/home/andrew/Hackathon2018/flaskServer/venv/bin/python
+#!/mnt/c/Users/Micha/Documents/hackproject/Hackathon2018/flaskServer/venv/bin/python
 
 import sys
 import getopt
