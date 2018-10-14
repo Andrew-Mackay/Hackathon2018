@@ -79,7 +79,7 @@ function setup() {
 // }
 
 function createPostcode(name, count) {
-  this.x = postcodeWidth - (count + 1) * 150;
+  this.x = (count - 1) * 150 + 20;
   this.y = random(1);
   if (this.y > 0.5) {
     this.y = 50;
