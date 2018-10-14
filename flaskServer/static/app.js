@@ -9,6 +9,8 @@ var bg2;
 var cityImg;
 var postcodeImg;
 var personImg;
+var personfImg;
+var personmImg;
 var font;
 let data = [];
 let cities = {};
@@ -25,6 +27,8 @@ function setup() {
   cityImg = loadImage("static/resources/city.png");
   postcodeImg = loadImage("static/resources/postcode.png");
   personImg = loadImage("static/resources/person.png");
+  personfImg = loadImage("static/resources/personf.png");
+  personmImg = loadImage("static/resources/personm.png");
   font = loadFont("static/resources/IndieFlower.ttf");
   createCanvas(windowWidth, windowHeight);
 
@@ -95,13 +99,14 @@ function renderPostcodes(data) {
   }
 }
 
-var createPerson = async function(count, first, last, drg) {
+var createPerson = function(count, first, last, drg, gender, allData) {
   this.x = (count + 1) * 200;
   this.y = (count + 1) * 20 + 20;
   this.diameter = 20;
+
   illnesses = "";
-  Object.values(drg.split(",")).map(function(drgcode, index) {
-    getDrg(drgcode)
+  Object.values(drg.split(",")).map(async function(drgcode, index) {
+    await getDrg(drgcode)
       .then(({ data }) => {
         console.log(data);
         illnesses += data + " & a";
@@ -111,8 +116,7 @@ var createPerson = async function(count, first, last, drg) {
       });
   });
 
-  console.log(illnesses);
-  return [x, y, first + " " + last, illnesses];
+  return [x, y, first + " " + last, illnesses, gender, allData];
 };
 
 function renderPeople(data) {
@@ -125,13 +129,17 @@ function renderPeople(data) {
     var last = data[count - 1].LastName;
     var admissions = data[count - 1].admissions;
     var drg = [];
+    var gender = data[count - 1].Gender;
+    var age = data[count - 1].Gender;
+
+    allData = data[count - 1];
 
     Object.values(admissions).map(function(objectValue, index) {
       drg += objectValue.Drg + ",";
     });
     drg = drg.slice(0, -1);
 
-    people[account] = createPerson(count, first, last, drg);
+    people[account] = createPerson(count, first, last, drg, gender, allData);
     console.log(people);
     count--;
   }
@@ -186,6 +194,11 @@ function draw() {
 
   if (renderingPeople) {
     Object.values(people).map(function(objectValue, index) {
+      if (objectValue[3] == "M") {
+        personImg = personmImg;
+      } else {
+        personImg = personfImg;
+      }
       image(personImg, objectValue[0], objectValue[1], 150, 300);
 
       /*
@@ -213,8 +226,7 @@ function draw() {
       }*/
 
       text(
-        "I am suffering from a " +
-          illness[Object.keys(people).find(key => people[key] === objectValue)],
+        "I am suffering from a " + objectValue[3],
         objectValue[0],
         objectValue[1]
       );
